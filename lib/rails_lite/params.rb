@@ -22,10 +22,11 @@ class Params
     {}.tap do |query_vals|
       ary.each do |val|
         keys = parse_key(val.first)
-        until keys.empty?
-          hash = hash[keys.shift]
+        hash = {}
+        until keys.size == 1
+          hash[keys.shift] = hash == {} ? val.last : hash
         end
-        query_vals[hash] = val.last
+        query_vals[keys.first] = hash == {} ? val.last : hash
       end
     end
   end
