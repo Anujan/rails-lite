@@ -21,11 +21,18 @@ class Params
     ary = URI.decode_www_form(www_encoded_form)
     {}.tap do |query_vals|
       ary.each do |val|
-        query_vals[val.first] = val.last
+        keys = parse_key(val.first)
+        until keys.empty?
+          hash = hash[keys.shift]
+        end
+        query_vals[hash] = val.last
       end
     end
   end
 
   def parse_key(key)
+    regexp = /[^\]\[|\[|\]]+/
+    keys = key.split("[]")
+    keys.map { |k| k.match(regexp) }.map(&:to_s)
   end
 end
