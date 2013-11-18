@@ -11,15 +11,19 @@ trap('INT') { server.shutdown }
 
 class MyController < ControllerBase
   def go
-    render_content("hello world!", "text/html")
+    #render_content("hello world!", "text/html")
 
     # after you have template rendering, uncomment:
-#    render :show
+    #render :show
 
     # after you have sessions going, uncomment:
-#    session["count"] ||= 0
-#    session["count"] += 1
-#    render :counting_show
+    session["count"] ||= 0
+    session["count"] += 1
+    render :counting_show
+  end
+
+  def go_google
+    redirect_to("http://google.com")
   end
 end
 
