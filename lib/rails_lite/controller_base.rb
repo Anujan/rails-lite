@@ -30,15 +30,31 @@ class ControllerBase
 
   def finish_response
     @already_built_response = true
-    session.store_session(@response)
+    session.store(@response)
+    flash.store(@response)
   end
 
   def session
     @session ||= Session.new(@request)
   end
 
+  def flash
+    @flash ||= Flash.new(@request)
+  end
+
   def already_rendered?
     !!@already_built_response
+  end
+
+  def form_authenticity_token
+    @form_authenticity_token ||= SecureRandom.base64(32)
+    session[:csrf] = @form_authenticity_token
+  end
+
+  def verify_csrf
+    if session[:csrf].nil? || session[:csrf] != params[:authenticity_token]
+      session.clear
+    end
   end
 
   def render(template_name)
@@ -51,5 +67,8 @@ class ControllerBase
 
   def invoke_action(name)
     self.send(name)
+    unless already_rendered?
+      render(name)
+    end
   end
 end

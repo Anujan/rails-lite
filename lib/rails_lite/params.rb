@@ -8,6 +8,9 @@ class Params
       parsed = parse_www_encoded_form(p)
       @params.deep_merge!(parsed)
     end
+    unless req.body.nil?
+      params[:authenticity_token] ||= "NO FORM TOKEN"
+    end
   end
 
   def [](key)
