@@ -1,10 +1,13 @@
 require 'uri'
 
 class Params
-  def initialize(req, route_params={})
+  def initialize(req, route_params)
     @params = route_params
-    @params.merge!(parse_www_encoded_form(req.query_string))
-    @params.merge!(parse_www_encoded_form(req.body))
+    to_parse = [req.query_string, req.body]
+    to_parse.each do |p|
+      parsed = parse_www_encoded_form(p)
+      @params.deep_merge!(parsed)
+    end
   end
 
   def [](key)
@@ -22,18 +25,25 @@ class Params
     {}.tap do |query_vals|
       ary.each do |val|
         keys = parse_key(val.first)
-        hash = {}
-        until keys.size == 1
-          hash[keys.shift] = hash == {} ? val.last : hash
-        end
-        query_vals[keys.first] = hash == {} ? val.last : hash
+        query_vals.deep_merge!(nest_hash(keys, val.last))
       end
     end
   end
 
+  def nest_hash(keys, value)
+    hash = {}
+    complete_hash = hash
+    keys.each_with_index do |key, idx|
+      hash[key.to_sym] = idx == keys.size - 1 ? value : {}
+      hash = hash[key.to_sym]
+    end
+
+    complete_hash
+  end
+
   def parse_key(key)
     regexp = /[^\]\[|\[|\]]+/
-    keys = key.split("[]")
+    keys = key.split("[")
     keys.map { |k| k.match(regexp) }.map(&:to_s)
   end
 end

@@ -6,10 +6,10 @@ require 'active_support/core_ext'
 class ControllerBase
   attr_reader :params
 
-  def initialize(req, res)
+  def initialize(req, res, route_params={})
     @request = req
     @response = res
-    @params = Params.new(req)
+    @params = Params.new(req, route_params)
   end
 
   def controller_name
@@ -50,5 +50,6 @@ class ControllerBase
   end
 
   def invoke_action(name)
+    self.send(name)
   end
 end
