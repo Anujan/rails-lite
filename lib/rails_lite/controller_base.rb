@@ -10,6 +10,7 @@ class ControllerBase
     @request = req
     @response = res
     @params = Params.new(req, route_params)
+    verify_csrf
   end
 
   def controller_name

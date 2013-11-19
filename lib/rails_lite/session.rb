@@ -34,9 +34,6 @@ end
 
 
 class Session < RailsLiteCookie
-  def initialize(req)
-    super(req)
-  end
 end
 
 class Flash < RailsLiteCookie
