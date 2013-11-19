@@ -1,8 +1,20 @@
 module UrlHelper
   def define_url_helper(route)
     url = path_for_route(route)
-    ControllerBase.send('define_method', name_for_route(route)) do
-      url
+    ControllerBase.send('define_method', name_for_route(route)) do |*obj|
+      url.gsub(":id", obj.first.id)
+    end
+  end
+
+  def add_link_helpers
+    ControllerBase.send('define_method', 'link_to') do |label, url|
+      "<a href=\"#{url}\">#{label}</a>"
+    end
+
+    ControllerBase.send('define_method', 'button_to') do |label, url|
+      "<form method=\"post\" action=\"#{url}\" class=\"button_to\">
+        <div><input value=\"#{label}\" type=\"submit\" /></div>
+      </form>"
     end
   end
 
