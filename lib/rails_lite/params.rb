@@ -9,7 +9,7 @@ class Params
       @params.deep_merge!(parsed)
     end
     unless req.body.nil?
-      params[:authenticity_token] ||= "NO FORM TOKEN"
+      @params[:authenticity_token] ||= "NO FORM TOKEN"
     end
   end
 
@@ -27,17 +27,18 @@ class Params
     ary = URI.decode_www_form(www_encoded_form)
     {}.tap do |query_vals|
       ary.each do |val|
-        keys = parse_key(val.first)
-        query_vals.deep_merge!(nest_hash(keys, val.last))
+        nested_hash = nest_hash(val)
+        query_vals.deep_merge!(nested_hash)
       end
     end
   end
 
-  def nest_hash(keys, value)
+  def nest_hash(query)
+    keys = parse_key(query.first)
     hash = {}
     complete_hash = hash
     keys.each_with_index do |key, idx|
-      hash[key.to_sym] = idx == keys.size - 1 ? value : {}
+      hash[key.to_sym] = idx == keys.size - 1 ? query.last : {}
       hash = hash[key.to_sym]
     end
 
@@ -45,8 +46,6 @@ class Params
   end
 
   def parse_key(key)
-    regexp = /[^\]\[|\[|\]]+/
-    keys = key.split("[")
-    keys.map { |k| k.match(regexp) }.map(&:to_s)
+    key.split(/\]\[|\[|\]/)
   end
 end
